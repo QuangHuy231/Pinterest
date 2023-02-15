@@ -105,9 +105,9 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
                   className="bg-white flex items-center gap-2 text-black font-bold p-2 pl-4 pr-4 rounded-full opacity-70 hover:100 hover:shadow-md"
                 >
                   <BsFillArrowRightCircleFill />
-                  {destinantion.length > 20
-                    ? destinantion.slice(8, 20)
-                    : destinantion.slice(8)}
+                  {destinantion.length > 15
+                    ? `${destinantion.slice(0, 15)}...`
+                    : destinantion}
                 </a>
               )}
               {postedBy?._id === user.sub && (
@@ -127,11 +127,11 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
         )}
       </div>
       <Link
-        to={`user-profile/${user?._id}`}
+        to={`user-profile/${postedBy?._id}`}
         className="flex gap-2 mt-2 item-center"
       >
         <img
-          src={postedBy.image}
+          src={postedBy?.image}
           alt="user-profile"
           className="w-8 h-8 rounded-full object-cover"
         />
