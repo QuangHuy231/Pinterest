@@ -117,7 +117,7 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
                     e.stopPropagation();
                     deletePin(_id);
                   }}
-                  className="bg-white p-2 opacity-70 hover:opacity-100  font-bold text-dark text-base rounded-3xl hover:shadow-md outline-none"
+                  className="bg-white p-2 opacity-70 hover:opacity-100  font-bold text-dark text-base rounded-3xl hover:shadow-md outline-none mr-4"
                 >
                   <AiTwotoneDelete />
                 </button>
