@@ -1,9 +1,17 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IoMdAdd, IoMdSearch } from "react-icons/io";
+import { GoogleOAuthProvider, googleLogout } from "@react-oauth/google";
+import { AiOutlineLogout } from "react-icons/ai";
 const Navbar = ({ searchTerm, setSearchTerm, user }) => {
   const navigate = useNavigate();
   if (!user) return null;
+  const logout = () => {
+    googleLogout();
+    localStorage.clear();
+
+    navigate("/login");
+  };
 
   return (
     <div className="flex gap-2 md:gap-5 w-full mt-5 pb-7">
@@ -28,6 +36,16 @@ const Navbar = ({ searchTerm, setSearchTerm, user }) => {
         >
           <IoMdAdd />
         </Link>
+        <GoogleOAuthProvider
+          clientId={`${process.env.REACT_APP_GOOGLE_API_TOKEN}`}
+        >
+          <AiOutlineLogout
+            color="red"
+            fontSize={40}
+            onClick={logout}
+            className="rounded-full w-12 h-12 bg-white p-2 cursor-pointer"
+          />
+        </GoogleOAuthProvider>
       </div>
     </div>
   );

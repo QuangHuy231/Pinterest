@@ -100,7 +100,7 @@ const PinDetail = ({ user }) => {
             <p className="mt-3 ">{pinDetail.about}</p>
           </div>
           <Link
-            to={`user-profile/${pinDetail.postedBy?._id}`}
+            to={`/user-profile/${pinDetail.postedBy?._id}`}
             className="flex gap-2 mt-5 item-center bg-white rounded-lg"
           >
             <img
@@ -120,20 +120,25 @@ const PinDetail = ({ user }) => {
                 className="flex gap-2 mt-5 items-center bg-white rounded-lg"
                 key={i}
               >
-                <img
-                  src={comment.postedBy.image}
-                  alt="user-profile"
-                  className="w-10 h-10 rounded-full cursor-pointer"
-                />
+                <Link to={`/user-profile/${comment.postedBy?._id}`}>
+                  <img
+                    src={comment.postedBy.image}
+                    alt="user-profile"
+                    className="w-10 h-10 rounded-full cursor-pointer"
+                  />
+                </Link>
+
                 <div className="flex flex-col ">
-                  <p className="font-bold">{comment.postedBy.userName}</p>
+                  <Link to={`/user-profile/${comment.postedBy?._id}`}>
+                    <p className="font-bold">{comment.postedBy.userName}</p>
+                  </Link>
                   <p>{comment.comment}</p>
                 </div>
               </div>
             ))}
           </div>
           <div className="flex flex-wrap mt-6 gap-3">
-            <Link to={`user-profile/${pinDetail.postedBy?._id}`}>
+            <Link to={`/user-profile/${user?._id}`}>
               <img
                 src={user?.image}
                 alt="user-profile"
@@ -157,7 +162,6 @@ const PinDetail = ({ user }) => {
           </div>
         </div>
       </div>
-      {console.log(pins)}
       {pins?.length > 0 ? (
         <>
           <h2 className="text-center font-bold text-2xl mt-8 mb-4">

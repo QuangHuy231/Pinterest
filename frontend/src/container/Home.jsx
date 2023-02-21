@@ -4,7 +4,7 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import logo from "../assets/logo.png";
 import Sidebar from "../components/Sidebar";
 
-import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, Route, Routes } from "react-router-dom";
 import { userQuery } from "../utils/data";
 import { client } from "../client";
 import UserProfile from "../components/UserProfile";
@@ -16,11 +16,6 @@ const Home = () => {
   const userInfo = fetchUser();
 
   const scrollRef = useRef();
-  const navigate = useNavigate();
-
-  if (!localStorage.getItem("user")) {
-    navigate("/login");
-  }
 
   useEffect(() => {
     const query = userQuery(userInfo?.sub);
