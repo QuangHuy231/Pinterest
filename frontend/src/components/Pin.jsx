@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 
 import { MdDownloadForOffline } from "react-icons/md";
 import { AiTwotoneDelete } from "react-icons/ai";
 import { BsFillArrowRightCircleFill } from "react-icons/bs";
-import { urlFor, client } from "../client";
+
 import { fetchUser } from "../utils/fetchUser";
+import axios from "axios";
 
 const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
   const [postHovered, setPostHovered] = useState(false);
@@ -15,36 +15,54 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
 
   const user = fetchUser();
 
-  const alreadySaved = !!save?.filter((item) => item.postedBy._id === user.sub)
+  const alreadySaved = !!save?.filter((item) => item.postedBy._id === user._id)
     ?.length;
   //1, [2,3,1] -> [1].length -> 1
   // 4 ,[2,3,1] -> [].length -> 0
 
-  const savePin = (id) => {
-    if (!alreadySaved) {
-      client
-        .patch(id)
-        .setIfMissing({ save: [] })
-        .insert("after", "save[-1]", [
-          {
-            _key: uuidv4(),
-            userId: user.sub,
-            postedBy: {
-              _type: "postedBy",
-              _ref: user.sub,
-            },
-          },
-        ])
-        .commit()
-        .then(() => {
-          window.location.reload();
-        });
-    }
-  };
-  const deletePin = (id) => {
-    client.delete(id).then(() => {
-      window.location.reload();
-    });
+  // const savePin = (id) => {
+  //   if (!alreadySaved) {
+  //     client
+  //       .patch(id)
+  //       .setIfMissing({ save: [] })
+  //       .insert("after", "save[-1]", [
+  //         {
+  //           _key: uuidv4(),
+  //           userId: user.sub,
+  //           postedBy: {
+  //             _type: "postedBy",
+  //             _ref: user.sub,
+  //           },
+  //         },
+  //       ])
+  //       .commit()
+  //       .then(() => {
+  //         window.location.reload();
+  //       });
+  //   }
+  // };
+  // const deletePin = (id) => {
+  //   client.delete(id).then(() => {
+  //     window.location.reload();
+  //   });
+  // };
+
+  const handleDownload = (e) => {
+    e.stopPropagation();
+    const filename = image;
+    axios
+      .get(`/download/${filename}`, { responseType: "blob" })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
   return (
     <div className="m-2">
@@ -55,9 +73,10 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
         className="relative cursor-zoom-in w-auto hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
       >
         <img
+          loading="lazy"
           className="rounded-lg w-full"
           alt="user-post"
-          src={urlFor(image).width(250).url()}
+          src={`http://localhost:5000/uploads/${image}`}
         />
         {postHovered && (
           <div
@@ -67,10 +86,11 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
                 <a
-                  href={`${image?.asset?.url}?dl=`}
-                  download
+                  href={`http://localhost:5000/uploads/${image}`}
                   //chỉ tải không chuyển đến trang pin detail
-                  onClick={(e) => e.stopPropagation()}
+                  target="_blank"
+                  onClick={handleDownload}
+                  download
                   className="bg-white w-9 h-9 rounded-full flex items-center justify-center text-dark text-xl opacity-75 hover:opacity-100 hover:shadow-md outline-none"
                 >
                   <MdDownloadForOffline />
@@ -87,7 +107,7 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    savePin(_id);
+                    // savePin(_id);
                   }}
                   type="button"
                   className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
@@ -110,12 +130,12 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
                     : destinantion}
                 </a>
               )}
-              {postedBy?._id === user.sub && (
+              {postedBy?._id === user._id && (
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    deletePin(_id);
+                    // deletePin(_id);
                   }}
                   className="bg-white p-2 opacity-70 hover:opacity-100  font-bold text-dark text-base rounded-3xl hover:shadow-md outline-none mr-4"
                 >
@@ -127,7 +147,7 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
         )}
       </div>
       <Link
-        to={`user-profile/${postedBy?._id}`}
+        to={`user-profile/${postedBy?.googleId}`}
         className="flex gap-2 mt-2 item-center"
       >
         <img

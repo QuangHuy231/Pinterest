@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -7,26 +7,30 @@ import logo from "../assets/logowhite.png";
 
 import { GoogleLogin } from "@react-oauth/google";
 import jwtDecode from "jwt-decode";
-import { client } from "../client";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserContext } from "../context/UserContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const handleSuccess = (res) => {
+  const { setUser } = useContext(UserContext);
+  const handleSuccess = async (res) => {
     const decoded = jwtDecode(res.credential);
-    localStorage.setItem("user", JSON.stringify(decoded));
+    localStorage.setItem("google", JSON.stringify(decoded));
+
     const { name, sub, picture } = decoded;
     const doc = {
-      _id: sub,
-      _type: "user",
+      googleId: sub,
       userName: name,
       image: picture,
     };
 
-    client.createIfNotExists(doc).then(() => {
-      navigate("/", { replace: true });
-    });
+    const { data } = await axios.post("/auth/login", doc);
+    localStorage.setItem("user", JSON.stringify(data));
+    setUser(data);
+    navigate("/");
   };
+
   return (
     <div className="flex justify-start items-center flex-col h-screen">
       <div className="relative w-full h-full">

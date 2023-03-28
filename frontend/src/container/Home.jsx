@@ -1,38 +1,32 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { HiMenu } from "react-icons/hi";
 import { AiFillCloseCircle } from "react-icons/ai";
 import logo from "../assets/logo.png";
 import Sidebar from "../components/Sidebar";
 
-import { Link, Route, Routes } from "react-router-dom";
-import { userQuery } from "../utils/data";
-import { client } from "../client";
+import { Link, Navigate, Route, Routes } from "react-router-dom";
 import UserProfile from "../components/UserProfile";
 import Pins from "./Pins";
-import { fetchUser } from "../utils/fetchUser";
+import { UserContext } from "../context/UserContext";
+
 const Home = () => {
   const [toogleSidebar, setToggleSidebar] = useState(false);
-  const [user, setUser] = useState(null);
-  const userInfo = fetchUser();
 
   const scrollRef = useRef();
+  const { user } = useContext(UserContext);
 
-  useEffect(() => {
-    const query = userQuery(userInfo?.sub);
+  // useEffect(() => {
+  //   scrollRef.current.scrollTo(0, 0);
+  // });
 
-    client.fetch(query).then((data) => {
-      setUser(data[0]);
-    });
-  }, []);
-
-  useEffect(() => {
-    scrollRef.current.scrollTo(0, 0);
-  });
+  if (!user) {
+    return <Navigate to={"/login"} />;
+  }
 
   return (
     <div className="flex bg-gray-50 md:flex-row flex-col h-screen transaction-height duration-75 ease-out">
       <div className="hidden md:flex h-screen flex-initial">
-        <Sidebar user={user && user} />
+        <Sidebar />
       </div>
       <div className="flex md:hidden flex-row ">
         <div className="p-2 w-full flex flex-row justify-between items-center shadow-md ">
@@ -57,7 +51,7 @@ const Home = () => {
                 onClick={() => setToggleSidebar(false)}
               />
             </div>
-            <Sidebar user={user && user} closeToggle={setToggleSidebar} />
+            <Sidebar closeToggle={setToggleSidebar} />
           </div>
         )}
       </div>
@@ -65,7 +59,7 @@ const Home = () => {
       <div className="pb-2 flex-1 h-screen overflow-y-scroll" ref={scrollRef}>
         <Routes>
           <Route path="/user-profile/:userId" element={<UserProfile />} />
-          <Route path="/*" element={<Pins user={user && user} />} />
+          <Route path="/*" element={<Pins />} />
         </Routes>
       </div>
     </div>

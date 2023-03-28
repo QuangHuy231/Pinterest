@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 
 import { MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
-import { client } from "../client";
+// import { client } from "../client";
 
 import Spinner from "./Spinner";
 import { categories } from "../utils/data";
+import axios from "axios";
+import { UserContext } from "../context/UserContext";
 
-const CreatePin = ({ user }) => {
+const CreatePin = () => {
+  const { user } = useContext(UserContext);
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
   const [destinantion, setDestinantion] = useState("");
@@ -21,59 +24,36 @@ const CreatePin = ({ user }) => {
 
   const navigate = useNavigate();
 
-  const uploadImage = (e) => {
-    const selectedFile = e.target.files[0];
-    if (
-      selectedFile.type === "image/png" ||
-      selectedFile.type === "image/svg" ||
-      selectedFile.type === "image/jpeg" ||
-      selectedFile.type === "image/gif" ||
-      selectedFile.type === "image/tiff"
-    ) {
-      setWrongImageType(false);
-      setLoading(true);
-      client.assets
-        .upload("image", selectedFile, {
-          contentType: selectedFile.type,
-          filename: selectedFile.name,
-        })
-        .then((document) => {
-          console.log(document);
-          setImageAsset(document);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.log("Image upload error ", error);
-        });
-    } else {
-      setWrongImageType(true);
-    }
+  const uploadPhoto = (e) => {
+    const files = e.target.files;
+    const data = new FormData();
+    // Append only the first file to the FormData object
+    data.append("photo", files[0]);
+    axios
+      .post("/upload", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        const { data: filename } = res;
+        setImageAsset(filename);
+      });
   };
 
-  const savePin = () => {
-    if (title && about && destinantion && imageAsset?._id && category) {
+  const savePin = async () => {
+    if (title && about && destinantion && imageAsset && category) {
       const doc = {
-        _type: "pin",
         title,
         about,
         destinantion,
-        image: {
-          _type: "image",
-          asset: {
-            _type: "reference",
-            _ref: imageAsset?._id,
-          },
-        },
-        userId: user._id,
-        postedBy: {
-          _type: "posetedBy",
-          _ref: user._id,
-        },
+        image: imageAsset,
+        postedBy: user?._id,
         category,
       };
-      client.create(doc).then(() => {
-        navigate("/");
-      });
+      await axios.post("/pin/create-pin", doc);
+      // {
+      //   headers: { authorization: `Bearer ${user?.token}` },
+      // }
+      navigate(`/user-profile/${user.googleId}`);
     } else {
       setFields(true);
       setTimeout(() => setFields(false), 2000);
@@ -109,14 +89,14 @@ const CreatePin = ({ user }) => {
                 <input
                   type="file"
                   name="upload-image"
-                  onChange={uploadImage}
+                  onChange={uploadPhoto}
                   className="w-0 h-0"
                 />
               </label>
             ) : (
               <div className="relative h-full">
                 <img
-                  src={imageAsset?.url}
+                  src={`http://localhost:5000/uploads/${imageAsset}`}
                   alt="uploaded-pic"
                   className="h-full w-full"
                 />
@@ -177,6 +157,7 @@ const CreatePin = ({ user }) => {
                   <option
                     className="text-base border-0 outline-none capitalize bg-white text-black"
                     value={category.name}
+                    key={category.name}
                   >
                     {category.name}
                   </option>

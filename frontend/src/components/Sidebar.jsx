@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { RiHomeFill } from "react-icons/ri";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import logo from "../assets/logo.png";
 import { categories } from "../utils/data";
+import { UserContext } from "../context/UserContext";
 const isNotActiveStyle =
   "flex items-center px-5 gap-3 text-gray-500 hover:text-black transition-all duration-200 ease-in-out capitalize";
 const isActiveStyle =
   "flex items-center px-5 gap-3 font-extrabold border-r-2 border-black transition-all duration-200 ease-in-out capitalize";
 
-const Sidebar = ({ user, closeToggle }) => {
+const Sidebar = ({ closeToggle }) => {
+  const { user } = useContext(UserContext);
   const handleCloseSidebar = () => {
     if (closeToggle) closeToggle(false);
   };
@@ -59,7 +61,7 @@ const Sidebar = ({ user, closeToggle }) => {
       </div>
       {user && (
         <Link
-          to={`user-profile/${user._id}`}
+          to={`user-profile/${user.googleId}`}
           className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
           onClick={handleCloseSidebar}
         >

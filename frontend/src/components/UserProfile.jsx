@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useId } from "react";
+import React, { useState, useEffect, useId, useContext } from "react";
 import { AiOutlineLogout } from "react-icons/ai";
 import { useParams, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, googleLogout } from "@react-oauth/google";
@@ -8,10 +8,12 @@ import {
   userSavedPinsQuery,
 } from "../utils/data";
 import { client } from "../client";
+import axios from "axios";
 
 import MasonryLayout from "./MasonryLayout";
 import Spinner from "./Spinner";
 import { fetchUser } from "../utils/fetchUser";
+import { UserContext } from "../context/UserContext";
 
 const randomImage =
   "https://source.unsplash.com/1600x900/?nature,photography,technology";
@@ -22,36 +24,53 @@ const notActiveBtnStyles =
   "bg-primary mr-4 text-black font-bold p-2 rounded-full w-20 outline-none";
 
 const UserProfile = () => {
-  const [user, setUser] = useState(null);
-  const [pins, setPins] = useState(null);
-  const [text, setText] = useState("Created");
-  const [activeBtn, setActiveBtn] = useState("created");
+  const [userProfile, setUserProfile] = useState(null);
+  const [err, setErr] = useState("");
+  // const [pins, setPins] = useState(null);
+  // const [text, setText] = useState("Created");
+  // const [activeBtn, setActiveBtn] = useState("created");
   const navigate = useNavigate();
   const { userId } = useParams();
-  const User = fetchUser();
+
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
-    const query = userQuery(userId);
-    client.fetch(query).then((data) => setUser(data[0]));
-  }, [userId]);
+    const fetchData = async () => {
+      try {
+        const { data } = await axios.get(`/auth/get-user/${userId}`, {
+          headers: { authorization: `Bearer ${user?.token}` },
+        });
 
-  useEffect(() => {
-    if (text === "Created") {
-      const createPinsQuery = userCreatedPinsQuery(userId);
-      client.fetch(createPinsQuery).then((data) => setPins(data));
-    } else {
-      const savedPinsQuery = userSavedPinsQuery(userId);
-      client.fetch(savedPinsQuery).then((data) => setPins(data));
-    }
-  }, [text, userId]);
+        setUserProfile(data);
+      } catch (error) {
+        setErr(err);
+      }
+    };
 
-  const logout = () => {
+    fetchData();
+  }, [err, user?.token, userId]);
+
+  // useEffect(() => {
+  //   if (text === "Created") {
+  //     const createPinsQuery = userCreatedPinsQuery(userId);
+  //     client.fetch(createPinsQuery).then((data) => setPins(data));
+  //   } else {
+  //     const savedPinsQuery = userSavedPinsQuery(userId);
+  //     client.fetch(savedPinsQuery).then((data) => setPins(data));
+  //   }
+  // }, [text, userId]);
+
+  const logout = async () => {
+    // await axios.post("/auth/logout");
     googleLogout();
     localStorage.clear();
 
     navigate("/login");
   };
-  if (!user) {
+  if (err) {
+    return <div>{err}</div>;
+  }
+  if (!userProfile) {
     return <Spinner message="Loading profile..." />;
   }
 
@@ -66,15 +85,15 @@ const UserProfile = () => {
               alt="banner-pic"
             />
             <img
-              src={user.image}
+              src={userProfile.image}
               alt="user-pic"
               className="rounded-full w-20 h-20 -mt-10 shadow-xl object-cover"
             />
             <h1 className="font-bold text-3xl text-center mt-3">
-              {user.userName}
+              {userProfile.userName}
             </h1>
             <div className="absolute top-0 z-1 right-0 p-2">
-              {userId === User.sub && (
+              {userId === user.googleId && (
                 <GoogleOAuthProvider
                   clientId={`${process.env.REACT_APP_GOOGLE_API_TOKEN}`}
                 >
@@ -88,7 +107,7 @@ const UserProfile = () => {
               )}
             </div>
           </div>
-          <div className="text-center mb-7">
+          {/* <div className="text-center mb-7">
             <button
               type="button"
               onClick={(e) => {
@@ -122,7 +141,7 @@ const UserProfile = () => {
             <div className="flex justify-center font-bold items-center w-full text-xl mt-2">
               No Found Pin
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
