@@ -2,7 +2,8 @@ import asyncHandler from "express-async-handler";
 import Pin from "../model/Pin.js";
 
 export const createPin = asyncHandler(async (req, res) => {
-  const { title, about, destinantion, image, postedBy, category } = req.body;
+  const { title, about, destinantion, image, userId, postedBy, category } =
+    req.body;
 
   try {
     const pinDoc = await Pin.create({
@@ -10,6 +11,7 @@ export const createPin = asyncHandler(async (req, res) => {
       about,
       destinantion,
       image,
+      userId,
       postedBy: postedBy,
       category,
     });
@@ -130,6 +132,7 @@ export const savePin = asyncHandler(async (req, res) => {
       {
         $push: {
           save: {
+            userId: userSave.googleId,
             userSave: {
               _id: userSave._id,
               googleId: userSave.googleId,
@@ -158,9 +161,7 @@ export const unSavePin = asyncHandler(async (req, res) => {
       {
         $pull: {
           save: {
-            userSave: {
-              _id: userId,
-            },
+            userId: userId,
           },
         },
       },
@@ -196,6 +197,44 @@ export const addComment = asyncHandler(async (req, res) => {
       { new: true }
     );
     res.json("Save Pin Success!");
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+export const getPinOfUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pinOfUser = await Pin.find({ userId: id })
+      .populate("postedBy")
+      .populate("save.userSave");
+
+    if (pinOfUser) {
+      res.json(pinOfUser);
+    } else {
+      throw new Error("Category emty!");
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+export const getPinUserSave = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pinOfUser = await Pin.find({
+      "save.userId": id,
+    })
+      .populate("postedBy")
+      .populate("save.userSave");
+
+    if (pinOfUser) {
+      res.json(pinOfUser);
+    } else {
+      throw new Error("Category emty!");
+    }
   } catch (error) {
     throw new Error(error);
   }

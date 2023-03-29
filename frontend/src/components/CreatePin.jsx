@@ -46,6 +46,7 @@ const CreatePin = () => {
         about,
         destinantion,
         image: imageAsset,
+        userId: user.googleId,
         postedBy: user?._id,
         category,
       };

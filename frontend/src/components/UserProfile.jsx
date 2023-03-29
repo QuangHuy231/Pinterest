@@ -2,11 +2,6 @@ import React, { useState, useEffect, useContext } from "react";
 import { AiOutlineLogout } from "react-icons/ai";
 import { useParams, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, googleLogout } from "@react-oauth/google";
-import {
-  userCreatedPinsQuery,
-  userQuery,
-  userSavedPinsQuery,
-} from "../utils/data";
 
 import axios from "axios";
 
@@ -26,9 +21,9 @@ const notActiveBtnStyles =
 const UserProfile = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [err, setErr] = useState("");
-  // const [pins, setPins] = useState(null);
-  // const [text, setText] = useState("Created");
-  // const [activeBtn, setActiveBtn] = useState("created");
+  const [pins, setPins] = useState(null);
+  const [text, setText] = useState("Created");
+  const [activeBtn, setActiveBtn] = useState("created");
   const navigate = useNavigate();
   const { userId } = useParams();
 
@@ -37,9 +32,7 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await axios.get(`/auth/get-user/${userId}`, {
-          headers: { authorization: `Bearer ${user?.token}` },
-        });
+        const { data } = await axios.get(`/auth/get-user/${userId}`);
 
         setUserProfile(data);
       } catch (error) {
@@ -48,17 +41,19 @@ const UserProfile = () => {
     };
 
     fetchData();
-  }, [err, user?.token, userId]);
+  }, [err, userId]);
 
-  // useEffect(() => {
-  //   if (text === "Created") {
-  //     const createPinsQuery = userCreatedPinsQuery(userId);
-  //     client.fetch(createPinsQuery).then((data) => setPins(data));
-  //   } else {
-  //     const savedPinsQuery = userSavedPinsQuery(userId);
-  //     client.fetch(savedPinsQuery).then((data) => setPins(data));
-  //   }
-  // }, [text, userId]);
+  useEffect(() => {
+    if (text === "Created") {
+      axios
+        .get(`/pin/getPinOfUser/${userId}`)
+        .then((data) => setPins(data.data));
+    } else {
+      axios
+        .get(`/pin/getPinUserSave/${userId}`)
+        .then((data) => setPins(data.data));
+    }
+  }, [text, userId]);
 
   const logout = async () => {
     // await axios.post("/auth/logout");
@@ -107,7 +102,7 @@ const UserProfile = () => {
               )}
             </div>
           </div>
-          {/* <div className="text-center mb-7">
+          <div className="text-center mb-7">
             <button
               type="button"
               onClick={(e) => {
@@ -141,7 +136,7 @@ const UserProfile = () => {
             <div className="flex justify-center font-bold items-center w-full text-xl mt-2">
               No Found Pin
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>

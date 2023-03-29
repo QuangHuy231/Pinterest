@@ -7,6 +7,8 @@ import {
   getDetailPin,
   getMorePin,
   getPinOFCategory,
+  getPinOfUser,
+  getPinUserSave,
   savePin,
   searchPin,
   unSavePin,
@@ -25,5 +27,6 @@ router.delete("/delete-pin/:id", deletePin);
 router.put("/save-pin/:id", savePin);
 router.put("/commentPin/:id", addComment);
 router.put("/unsave-pin/:id", unSavePin);
-
+router.get("/getPinOfUser/:id", getPinOfUser);
+router.get("/getPinUserSave/:id", getPinUserSave);
 export default router;

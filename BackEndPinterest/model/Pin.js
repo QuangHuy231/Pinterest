@@ -6,12 +6,14 @@ const PinSchema = new mongoose.Schema({
   destinantion: String,
   category: String,
   image: String,
+  userId: String,
   postedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
   save: [
     {
+      userId: String,
       userSave: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users",

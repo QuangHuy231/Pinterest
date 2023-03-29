@@ -26,7 +26,7 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
         window.location.reload();
       });
     } else {
-      axios.put(`/pin/unsave-pin/${id}`, { userId: user._id }).then(() => {
+      axios.put(`/pin/unsave-pin/${id}`, { userId: user.googleId }).then(() => {
         window.location.reload();
       });
     }
