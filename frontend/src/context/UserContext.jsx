@@ -7,6 +7,7 @@ export function UserContextProvider({ children }) {
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
+
   useEffect(() => {
     const fetchData = async () => {
       const { data } = await axios.get(`/auth/get-user/${user?.googleId}`);

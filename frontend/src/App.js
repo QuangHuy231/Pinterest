@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 import Home from "./container/Home";
 import Login from "./components/Login";
-import { fetchUser } from "./utils/fetchUser";
+
 import axios from "axios";
 
 axios.defaults.baseURL = "http://localhost:5000";

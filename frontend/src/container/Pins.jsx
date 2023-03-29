@@ -19,19 +19,16 @@ const Pins = () => {
         <div className="h-full ">
           <Routes>
             <Route path="/" element={<Feed />} />
-            {/* <Route path="/category/:categoryId" element={<Feed />} />
-            <Route
-              path="/pin-detail/:pinId"
-              element={<PinDetail user={user} />}
-            /> */}
+            <Route path="/category/:categoryId" element={<Feed />} />
+            <Route path="/pin-detail/:pinId" element={<PinDetail />} />
             <Route path="/create-pin" element={<CreatePin />} />
-            {/* <Route
+            <Route
               path="/search"
               element={
                 <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
               }
-            /> */}
-            {/* <Route path="/*" element={<Page404 />} /> */}
+            />
+            <Route path="/*" element={<Page404 />} />
           </Routes>
         </div>
       </div>

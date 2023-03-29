@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useId, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AiOutlineLogout } from "react-icons/ai";
 import { useParams, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, googleLogout } from "@react-oauth/google";
@@ -7,12 +7,12 @@ import {
   userQuery,
   userSavedPinsQuery,
 } from "../utils/data";
-import { client } from "../client";
+
 import axios from "axios";
 
 import MasonryLayout from "./MasonryLayout";
 import Spinner from "./Spinner";
-import { fetchUser } from "../utils/fetchUser";
+
 import { UserContext } from "../context/UserContext";
 
 const randomImage =

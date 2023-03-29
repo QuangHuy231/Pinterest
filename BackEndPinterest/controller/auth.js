@@ -52,6 +52,7 @@ export const getUser = asyncHandler(async (req, res) => {
 
   if (findUser) {
     res.status(200).json({
+      _id: findUser?._id,
       googleId: findUser?.googleId,
       userName: findUser?.userName,
       image: findUser?.image,

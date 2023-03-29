@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { IoMdAdd, IoMdSearch } from "react-icons/io";
 import { GoogleOAuthProvider, googleLogout } from "@react-oauth/google";
 import { AiOutlineLogout } from "react-icons/ai";
-import axios from "axios";
 import { UserContext } from "../context/UserContext";
 const Navbar = ({ searchTerm, setSearchTerm }) => {
   const { user } = useContext(UserContext);

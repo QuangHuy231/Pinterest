@@ -12,15 +12,20 @@ const PinSchema = new mongoose.Schema({
   },
   save: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Save",
+      userSave: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+      },
     },
   ],
 
   comments: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
+      userComment: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+      },
+      comments: String,
     },
   ],
 });

@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { MdDownloadForOffline } from "react-icons/md";
 import { Link, useParams } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import { client, urlFor } from "../client";
 import MasonryLayout from "./MasonryLayout";
 import Spinner from "./Spinner";
-import { pinDetailQuery, pinDetailMorePinQuery } from "../utils/data";
+import { UserContext } from "../context/UserContext";
+import axios from "axios";
 
-const PinDetail = ({ user }) => {
+const PinDetail = () => {
+  const { user } = useContext(UserContext);
   const [pins, setPins] = useState(null);
   const [pinDetail, setPinDetail] = useState(null);
   const [comment, setComment] = useState("");
@@ -15,24 +15,32 @@ const PinDetail = ({ user }) => {
 
   const { pinId } = useParams();
 
+  const fetchPinDetails = () => {
+    axios.get(`/pin/getPin/${pinId}`).then((data) => {
+      setPinDetail(data.data[0]);
+
+      if (data.data[0]) {
+        axios
+          .post(`/pin/getMorePin/${pinId}`, { category: pinDetail?.category })
+          .then((data) => {
+            setPins(data.data);
+          });
+      }
+    });
+  };
+
   const addComment = () => {
     if (comment) {
       setAddingComment(true);
 
-      client
-        .patch(pinId)
-        .setIfMissing({ comments: [] })
-        .insert("after", "comments[-1]", [
-          {
-            comment,
-            _key: uuidv4(),
-            postedBy: {
-              _type: "postedBy",
-              _ref: user._id,
-            },
-          },
-        ])
-        .commit()
+      axios
+        .put(`/pin/commentPin/${pinDetail._id}`, {
+          userComment: user,
+          comments: comment,
+        })
+        .then(() => {
+          window.location.reload();
+        })
         .then(() => {
           fetchPinDetails();
           setComment("");
@@ -41,25 +49,27 @@ const PinDetail = ({ user }) => {
     }
   };
 
-  const fetchPinDetails = () => {
-    const query = pinDetailQuery(pinId);
-
-    if (query) {
-      client.fetch(query).then((data) => {
-        setPinDetail(data[0]);
-
-        if (data[0]) {
-          const query1 = pinDetailMorePinQuery(data[0]);
-
-          client.fetch(query1).then((res) => setPins(res));
-        }
-      });
-    }
-  };
-
   useEffect(() => {
     fetchPinDetails();
-  }, [pinId]);
+  }, [pinDetail?.category, pinId]);
+
+  const handleDownload = (e) => {
+    e.stopPropagation();
+    const filename = pinDetail.image;
+    axios
+      .get(`/download/${filename}`, { responseType: "blob" })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   if (!pinDetail) return <Spinner message="Loading pin ..." />;
 
@@ -71,7 +81,7 @@ const PinDetail = ({ user }) => {
       >
         <div className="flex justify-center items-center md:items-start flex-initial">
           <img
-            src={pinDetail?.image && urlFor(pinDetail.image).url()}
+            src={`http://localhost:5000/uploads/${pinDetail?.image}`}
             className="rounded-t-3xl rounded-b-lg"
             alt="user-post"
           />
@@ -80,17 +90,19 @@ const PinDetail = ({ user }) => {
           <div className="flex items-center justify-between">
             <div className="flex gap-2 items-center">
               <a
-                href={`${pinDetail?.asset?.url}?dl=`}
-                download
+                href={`http://localhost:5000/uploads/${pinDetail.image}`}
                 //chỉ tải không chuyển đến trang pin detail
-                onClick={(e) => e.stopPropagation()}
+                target="_blank"
+                onClick={handleDownload}
+                download
                 className="bg-white w-9 h-9 rounded-full flex items-center justify-center text-dark text-xl opacity-75 hover:opacity-100 hover:shadow-md outline-none"
+                rel="noreferrer"
               >
                 <MdDownloadForOffline />
               </a>
             </div>
             <a href={pinDetail.destinantion} target="_blank" rel="noreferrer">
-              {pinDetail.destinantion?.slice(8)}
+              {pinDetail.destinantion}
             </a>
           </div>
           <div>
@@ -100,7 +112,7 @@ const PinDetail = ({ user }) => {
             <p className="mt-3 ">{pinDetail.about}</p>
           </div>
           <Link
-            to={`/user-profile/${pinDetail.postedBy?._id}`}
+            to={`/user-profile/${pinDetail.postedBy?.googleId}`}
             className="flex gap-2 mt-5 item-center bg-white rounded-lg"
           >
             <img
@@ -120,25 +132,25 @@ const PinDetail = ({ user }) => {
                 className="flex gap-2 mt-5 items-center bg-white rounded-lg"
                 key={i}
               >
-                <Link to={`/user-profile/${comment.postedBy?._id}`}>
+                <Link to={`/user-profile/${comment.userComment?.googleId}`}>
                   <img
-                    src={comment.postedBy.image}
+                    src={comment.userComment.image}
                     alt="user-profile"
                     className="w-10 h-10 rounded-full cursor-pointer"
                   />
                 </Link>
 
                 <div className="flex flex-col ">
-                  <Link to={`/user-profile/${comment.postedBy?._id}`}>
-                    <p className="font-bold">{comment.postedBy.userName}</p>
+                  <Link to={`/user-profile/${comment.userComment?.googleId}`}>
+                    <p className="font-bold">{comment.userComment.userName}</p>
                   </Link>
-                  <p>{comment.comment}</p>
+                  <p>{comment.comments}</p>
                 </div>
               </div>
             ))}
           </div>
           <div className="flex flex-wrap mt-6 gap-3">
-            <Link to={`/user-profile/${user?._id}`}>
+            <Link to={`/user-profile/${user?.googleId}`}>
               <img
                 src={user?.image}
                 alt="user-profile"

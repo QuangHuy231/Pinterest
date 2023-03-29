@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from "react";
 import MasonryLayout from "./MasonryLayout";
-import { client } from "../client";
-import { feedQuery, fetchQuery, searchQuery } from "../utils/data";
 import Spinner from "./Spinner";
+import axios from "axios";
 
 const Search = ({ searchTerm }) => {
-  const [pins, setPins] = useState(null);
+  const [pins, setPins] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (searchTerm) {
       setLoading(true);
-      const query = searchQuery(searchTerm.toLowerCase());
-      client.fetch(query).then((data) => {
-        setPins(data);
+      axios.post(`/pin/searchPin`, { searchTerm }).then((data) => {
+        setPins(data.data);
         setLoading(false);
       });
     } else {
-      client.fetch(feedQuery).then((data) => {
-        setPins(data);
+      axios.get("/pin/all-pins").then((data) => {
+        setPins(data.data);
         setLoading(false);
       });
     }
