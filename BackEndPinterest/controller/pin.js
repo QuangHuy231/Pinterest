@@ -2,17 +2,16 @@ import asyncHandler from "express-async-handler";
 import Pin from "../model/Pin.js";
 
 export const createPin = asyncHandler(async (req, res) => {
-  const { title, about, destinantion, image, userId, postedBy, category } =
-    req.body;
-
+  const { title, about, destinantion, image, category } = req.body;
+  const { googleId, _id } = req.user;
   try {
     const pinDoc = await Pin.create({
       title,
       about,
       destinantion,
       image,
-      userId,
-      postedBy: postedBy,
+      userId: googleId,
+      postedBy: _id,
       category,
     });
     res.json(pinDoc);
@@ -124,7 +123,7 @@ export const deletePin = asyncHandler(async (req, res) => {
 export const savePin = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const { userSave } = req.body;
+  const { googleId, _id, userName, image } = req.user;
 
   try {
     await Pin.findOneAndUpdate(
@@ -132,12 +131,12 @@ export const savePin = asyncHandler(async (req, res) => {
       {
         $push: {
           save: {
-            userId: userSave.googleId,
+            userId: googleId,
             userSave: {
-              _id: userSave._id,
-              googleId: userSave.googleId,
-              userName: userSave.userName,
-              image: userSave.image,
+              _id: _id,
+              googleId: googleId,
+              userName: userName,
+              image: image,
             },
           },
         },
@@ -153,7 +152,7 @@ export const savePin = asyncHandler(async (req, res) => {
 export const unSavePin = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const { userId } = req.body;
+  const { googleId } = req.user;
 
   try {
     await Pin.findOneAndUpdate(
@@ -161,7 +160,7 @@ export const unSavePin = asyncHandler(async (req, res) => {
       {
         $pull: {
           save: {
-            userId: userId,
+            userId: googleId,
           },
         },
       },
@@ -176,7 +175,8 @@ export const unSavePin = asyncHandler(async (req, res) => {
 export const addComment = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const { userComment, comments } = req.body;
+  const { comments } = req.body;
+  const { _id, googleId, userName, image } = req.user;
 
   try {
     await Pin.findOneAndUpdate(
@@ -185,10 +185,10 @@ export const addComment = asyncHandler(async (req, res) => {
         $push: {
           comments: {
             userComment: {
-              _id: userComment._id,
-              googleId: userComment.googleId,
-              userName: userComment.userName,
-              image: userComment.image,
+              _id: _id,
+              googleId: googleId,
+              userName: userName,
+              image: image,
             },
             comments,
           },

@@ -3,15 +3,16 @@ import {
   getUser,
   // handleRefreshToken,
   login,
-  // logout,
+  logout,
 } from "../controller/auth.js";
-// import { authMiddleware } from "../middleware/authMiddleware.js";
+
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.post("/login", login);
-// router.post("/logout", logout);
-router.get("/get-user/:googleId", getUser);
+router.post("/logout", authMiddleware, logout);
+router.get("/get-user/:googleId", authMiddleware, getUser);
 // router.put("/refresh", handleRefreshToken);
 
 export default router;

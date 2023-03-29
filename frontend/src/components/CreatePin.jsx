@@ -20,11 +20,11 @@ const CreatePin = () => {
   const [fields, setFields] = useState(false);
   const [category, setCategory] = useState(null);
   const [imageAsset, setImageAsset] = useState(null);
-  const [wrongImageType, setWrongImageType] = useState(null);
 
   const navigate = useNavigate();
 
   const uploadPhoto = (e) => {
+    setLoading(true);
     const files = e.target.files;
     const data = new FormData();
     // Append only the first file to the FormData object
@@ -36,6 +36,7 @@ const CreatePin = () => {
       .then((res) => {
         const { data: filename } = res;
         setImageAsset(filename);
+        setLoading(false);
       });
   };
 
@@ -46,8 +47,6 @@ const CreatePin = () => {
         about,
         destinantion,
         image: imageAsset,
-        userId: user.googleId,
-        postedBy: user?._id,
         category,
       };
       await axios.post("/pin/create-pin", doc);
@@ -73,7 +72,7 @@ const CreatePin = () => {
         <div className="bg-secondaryColor p-3 flex flex-0.7 w-full">
           <div className="flex justify-center items-center flex-col border-2 border-dotted border-gray-300 p-3 w-full h-420">
             {loading && <Spinner />}
-            {wrongImageType && <p className="">Wrong image type</p>}
+
             {!imageAsset ? (
               <label>
                 <div className="flex flex-col item-center justify-center h-full">

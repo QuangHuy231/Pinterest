@@ -4,15 +4,15 @@ import { IoMdAdd, IoMdSearch } from "react-icons/io";
 import { GoogleOAuthProvider, googleLogout } from "@react-oauth/google";
 import { AiOutlineLogout } from "react-icons/ai";
 import { UserContext } from "../context/UserContext";
+import axios from "axios";
 const Navbar = ({ searchTerm, setSearchTerm }) => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
   if (!user) return null;
   const logout = async () => {
-    // await axios.post("/auth/logout");
+    await axios.post("/auth/logout");
     googleLogout();
     localStorage.clear();
-
     navigate("/login");
   };
 

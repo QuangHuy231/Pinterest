@@ -56,7 +56,7 @@ const UserProfile = () => {
   }, [text, userId]);
 
   const logout = async () => {
-    // await axios.post("/auth/logout");
+    await axios.post("/auth/logout");
     googleLogout();
     localStorage.clear();
 

@@ -21,7 +21,9 @@ const PinDetail = () => {
 
       if (data.data[0]) {
         axios
-          .post(`/pin/getMorePin/${pinId}`, { category: pinDetail?.category })
+          .post(`/pin/getMorePin/${pinId}`, {
+            category: pinDetail?.category,
+          })
           .then((data) => {
             setPins(data.data);
           });
@@ -35,11 +37,7 @@ const PinDetail = () => {
 
       axios
         .put(`/pin/commentPin/${pinDetail._id}`, {
-          userComment: user,
           comments: comment,
-        })
-        .then(() => {
-          window.location.reload();
         })
         .then(() => {
           fetchPinDetails();
@@ -51,7 +49,7 @@ const PinDetail = () => {
 
   useEffect(() => {
     fetchPinDetails();
-  }, [pinDetail?.category, pinId]);
+  }, [pinId, pinDetail?._id]);
 
   const handleDownload = (e) => {
     e.stopPropagation();

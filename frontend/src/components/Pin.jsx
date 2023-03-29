@@ -22,11 +22,11 @@ const Pin = ({ pin: { postedBy, image, _id, destinantion, save } }) => {
 
   const savePin = (id) => {
     if (!alreadySaved) {
-      axios.put(`/pin/save-pin/${id}`, { userSave: user }).then(() => {
+      axios.put(`/pin/save-pin/${id}`).then(() => {
         window.location.reload();
       });
     } else {
-      axios.put(`/pin/unsave-pin/${id}`, { userId: user.googleId }).then(() => {
+      axios.put(`/pin/unsave-pin/${id}`).then(() => {
         window.location.reload();
       });
     }
